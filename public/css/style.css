@@ -1,0 +1,13 @@
+body,nav{
+    background: linear-gradient(135deg, #0a1a2f 0%, #152642 100%);
+}
+
+
+.navbar-brand{
+    font-family: 'Times New Roman', Times, serif;
+}
+
+
+  #min-vh {
+    min-height: 85vh !important;
+}
