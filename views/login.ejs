@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TalkSpin - Login</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        font-family: 'Times New Roman', Times, serif;
+      }
+      .login-container {
+        max-width: 500px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      }
+      .navbar-brand {
+        font-weight: 700;
+      }
+      .form-control {
+        margin-bottom: 1.5rem;
+      }
+      .btn-login {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 1.1rem;
+      }
+
+
+    </style>
+  </head>
+  <body>
+    <nav class="navbar bg-body-tertiary" id="nav1">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/" style="font-size: 2.5rem; color: rgb(205 205 205)">    
+          <i class="fa-brands fa-rocketchat"></i>
+          TalkSpin
+        </a>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="login-container">
+        <h3 class="text-center mb-4">Sign in</h3>
+        
+        <form id="loginForm">
+          <div class="mb-3">
+            <label for="username" class="form-label">Your Name</label>
+            <input 
+              type="text" 
+              class="form-control" 
+              id="username" 
+              placeholder="Enter your name"
+              required
+            >
+          </div>
+          
+          <div class="mb-4">
+            <label for="ageRange" class="form-label">
+              Your Age: <span class="badge bg-primary" id="ageDisplay">18</span>
+            </label>
+            <input 
+              type="range" 
+              class="form-range" 
+              min="18" 
+              max="60" 
+              id="ageRange" 
+              value="18"
+              required
+            >
+            <div class="d-flex justify-content-between">
+              <small>18</small>
+              <small>60</small>
+            </div>
+          </div>
+          
+          <a href="/chat" class="btn btn-primary btn-login">
+            <i class="fas fa-sign-in-alt me-2"></i> Continue
+          </a>
+        </form>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
+      crossorigin="anonymous"
+    ></script>
+    
+    <script>
+      // Age range display update
+      document.getElementById('ageRange').addEventListener('input', function() {
+        document.getElementById('ageDisplay').textContent = this.value;
+      });
+      
+      // Form submission handling
+      document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const age = document.getElementById('ageRange').value;
+        
+        // Here you would typically send this data to your server
+        console.log('Login submitted:', { username, age });
+        
+        // Redirect or show success message
+        alert(`Welcome ${username}! (Age: ${age})`);
+        // window.location.href = '/chat'; // Uncomment to redirect
+      });
+    </script>
+  </body>
+</html>

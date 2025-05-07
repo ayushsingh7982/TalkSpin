@@ -1,26 +1,50 @@
-const express=require("express");
-const socket=require("socket.io");
-const http=require("http");
-const path=require("path");
+// server.js
+const express = require("express");
+const socketIO = require("socket.io");
+const http = require("http");
+const path = require("path");
 
-const app=express();
-const port=4000;
+const app = express();
+const port = 4000;
 
+// Create HTTP server
 const server = http.createServer(app);
-const io = socket(server);
 
+// Initialize socket.io
+const io = socketIO(server);
+
+// View engine
 app.set("view engine", "ejs");
+
+// Static files
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/",(req,res)=>{
+// Routes
+app.get("/", (req, res) => {
     res.render("home");
-    // res.send("Working");
 });
 
+app.get("/login", (req, res) => {
+    res.render("login");
+});
 app.get("/chat",(req,res)=>{
-    res.render("chat")
+    res.render("chat");
 })
 
-server.listen(port,()=>{
-    console.log(`App is running on ${port}`);
-})
+// Socket.IO logic
+io.on("connection", (socket) => {
+    console.log("A user connected");
+
+    socket.on("chat message", (msg) => {
+        io.emit("chat message", msg);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("A user disconnected");
+    });
+});
+
+// Start server
+server.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+});

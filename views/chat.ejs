@@ -3,40 +3,250 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TalkSpin</title>
+    <title>TalkSpin - Chat Room</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7"
-      crossorigin="anonymous"
     />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <style>
+      :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3f37c9;
+      }
+      
+      body {
+        background-color: #f8f9fa;
+        height: 100vh;
+      }
+      
+      .chat-container {
+        height: calc(100vh - 80px);
+        display: flex;
+        flex-direction: column;
+      }
+      
+      #chat-box {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .chat-body {
+        flex: 1;
+        overflow: hidden;
+        padding: 0;
+      }
+      
+      #messages {
+        list-style: none;
+        padding: 15px;
+        height: 100%;
+        overflow-y: auto;
+        margin: 0;
+        scroll-behavior: smooth;
+      }
+      
+      #messages li {
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        border-radius: 15px;
+        max-width: 80%;
+        word-wrap: break-word;
+      }
+      
+      .message-info {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        margin-bottom: 3px;
+      }
+      
+      .user-message {
+        background-color: var(--primary-color);
+        color: white;
+        margin-left: auto;
+        border-bottom-right-radius: 5px !important;
+      }
+      
+      .other-message {
+        background-color: #e9ecef;
+        margin-right: auto;
+        border-bottom-left-radius: 5px !important;
+      }
+      
+      .system-message {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        margin: 10px auto;
+        text-align: center;
+        max-width: 100%;
+        font-size: 0.9rem;
+      }
+      
+      .chat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .user-count {
+        background-color: rgba(255,255,255,0.2);
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+      }
+      
+      #typing-indicator {
+        height: 20px;
+        font-size: 0.8rem;
+        color: #6c757d;
+        padding: 0 15px;
+      }
+    </style>
   </head>
   <body>
-    <nav class="navbar bg-body-tertiary" id="nav1">
-        <div class="container-fluid">
-          <a
-            class="navbar-brand"
-            href="#"
-            style="font-size: 2.5rem; color: rgb(205 205 205)"
-          >
-  
-          <i class="fa-brands fa-rocketchat"></i>
-            TalkSpin
-          </a>
+    <nav class="navbar bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#" style="font-size: 2.5rem; color: rgb(205 205 205)">
+          <i class="fa-brands fa-rocketchat"></i> TalkSpin
+        </a>
+        <div class="d-flex align-items-center">
+          <span id="user-info" class="me-3"></span>
+          <button id="leave-chat" class="btn btn-outline-danger btn-sm">
+            <i class="fas fa-sign-out-alt"></i> Leave
+          </button>
         </div>
-      </nav>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
-      crossorigin="anonymous"
-    ></script>
+      </div>
+    </nav>
+
+    <div class="container py-3 chat-container">
+      <div class="card shadow-lg h-100" id="chat-box">
+        <div class="card-header bg-primary text-white">
+          <div class="chat-header">
+            <h5 class="mb-0"><i class="fa-solid fa-comments"></i> TalkSpin Chat</h5>
+            <span class="user-count"><i class="fas fa-users"></i> <span id="user-count">1</span></span>
+          </div>
+        </div>
+        <div class="card-body chat-body">
+          <ul id="messages"></ul>
+          <div id="typing-indicator"></div>
+        </div>
+        <div class="card-footer p-3">
+          <form id="chat-form" class="d-flex gap-2">
+            <input
+              id="chat-input"
+              autocomplete="off"
+              class="form-control"
+              placeholder="Type your message..."
+              autofocus
+            />
+            <button type="submit" class="btn btn-success px-3">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      // Get user data from localStorage (set during login)
+      const userData = JSON.parse(localStorage.getItem('userData')) || {
+        username: 'Anonymous',
+        age: 'Unknown'
+      };
+      
+      // Display user info in navbar
+      document.getElementById('user-info').innerHTML = `
+        <span class="badge bg-secondary">
+          <i class="fas fa-user"></i> ${userData.username} (${userData.age})
+        </span>
+      `;
+      
+      // Initialize Socket.io
+      const socket = io();
+      
+      // When connected to server
+      socket.on('connect', () => {
+        console.log('Connected to chat server');
+        // Send user join information
+        socket.emit('user joined', userData);
+      });
+      
+      // Handle incoming messages
+      socket.on('chat message', (data) => {
+        const messages = document.getElementById('messages');
+        const li = document.createElement('li');
+        
+        if (data.type === 'system') {
+          li.className = 'system-message';
+          li.innerHTML = `<em>${data.message}</em>`;
+        } else {
+          li.className = data.userId === socket.id ? 'user-message' : 'other-message';
+          li.innerHTML = `
+            <div class="message-info">
+              ${data.username} ${data.userId === socket.id ? '' : `(${data.age})`}
+            </div>
+            ${data.message}
+          `;
+        }
+        
+        messages.appendChild(li);
+        messages.scrollTop = messages.scrollHeight;
+      });
+      
+      // Update user count
+      socket.on('user count', (count) => {
+        document.getElementById('user-count').textContent = count;
+      });
+      
+      // Typing indicator
+      socket.on('typing', (username) => {
+        const indicator = document.getElementById('typing-indicator');
+        indicator.textContent = username ? `${username} is typing...` : '';
+      });
+      
+      // Handle form submission
+      document.getElementById('chat-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('chat-input');
+        if (input.value.trim()) {
+          socket.emit('chat message', {
+            username: userData.username,
+            age: userData.age,
+            message: input.value.trim()
+          });
+          input.value = '';
+        }
+        input.focus();
+      });
+      
+      // Typing detection
+      const input = document.getElementById('chat-input');
+      let typingTimeout;
+      
+      input.addEventListener('input', () => {
+        socket.emit('typing', userData.username);
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+          socket.emit('typing', '');
+        }, 1000);
+      });
+      
+      // Leave chat button
+      document.getElementById('leave-chat').addEventListener('click', () => {
+        if (confirm('Are you sure you want to leave the chat?')) {
+          socket.emit('user left', userData.username);
+          localStorage.removeItem('userData');
+          window.location.href = '/';
+        }
+      });
+      
+      // Handle disconnect
+      socket.on('disconnect', () => {
+        console.log('Disconnected from chat server');
+      });
+    </script>
   </body>
 </html>

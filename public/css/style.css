@@ -11,3 +11,42 @@ body,nav{
   #min-vh {
     min-height: 85vh !important;
 }
+
+#chat-box {
+    max-width: 600px;
+    margin: 0 auto;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #152642;
+  }
+  
+  .chat-body {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #152642;
+    padding: 1rem;
+  }
+  
+  #messages {
+    list-style: none;
+    padding: 0;
+  }
+  
+  #messages li {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    max-width: 75%;
+    word-wrap: break-word;
+    background-color: #dcf8c6;
+    align-self: flex-start;
+  }
+  
+  #messages li.self {
+    background-color: #cce5ff;
+    align-self: flex-end;
+    text-align: right;
+  }
+  
+
